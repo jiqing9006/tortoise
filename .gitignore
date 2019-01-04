@@ -1,0 +1,30 @@
+# Created by .ignore support plugin
+# Logs 日志文件
+*.log
+
+# Runtime 缓存文件
+App/Runtime
+
+# config 配置文件
+App/Common/Conf/config.php
+App/Admin/Conf/config.php
+App/Api/Conf/config.php
+App/Index/Conf/config.php
+
+
+# upload 图片文件
+Public/site_upload
+
+# react 软连接
+Public/pc
+Public/pc_build
+Public/weixin
+Public/wx_build
+
+# other 编辑器产生的文件
+.idea/
+.DS_Store
+.buildpath
+.project
+
+
