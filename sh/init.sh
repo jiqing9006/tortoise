@@ -12,25 +12,20 @@ then
     cd ..
 fi
 
+# 进入APP目录下
+cd App
 
 # 清理runtime文件夹
-if [ ! -d  "runtime" ];then
-    echo $password|sudo -S mkdir runtime
-    echo $password|sudo -S chmod -R 777 runtime
+if [ ! -d  "Runtime" ];then
+    echo $password|sudo -S mkdir Runtime
+    echo $password|sudo -S chmod -R 777 Runtime
 else
-    echo $password|sudo -S rm -rf runtime/*
-fi
-
-# 创建logs文件夹
-if [ ! -d "logs" ];
-then
-    echo $password|sudo -S mkdir logs
-    echo $password|sudo -S chmod -R 777 logs
+    echo $password|sudo -S rm -rf Runtime/*
 fi
 
 
 # 创建public下的site_upload文件夹
-cd ./public
+cd ../Public
 if [ ! -d "site_upload" ];
 then
     echo $password|sudo -S mkdir site_upload

@@ -10,7 +10,7 @@ App/Common/Conf/config.php
 App/Admin/Conf/config.php
 App/Api/Conf/config.php
 App/Index/Conf/config.php
-
+App/Cron/Conf/config.php
 
 # upload 图片文件
 Public/site_upload
