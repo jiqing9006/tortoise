@@ -11,7 +11,7 @@ class IndexAction extends Action
 {
     public function index()
     {
-        echo "Index";
+//        echo "Index";
 //        $action = new ActionModel();
 //        $data_list = $action->getList();
 //        dump($data_list);
@@ -20,12 +20,30 @@ class IndexAction extends Action
 //        $data_list = $userService->getList();
 //        dump($data_list);
 
-        $test = new Test();
-        $test->sayHello();
-
+//        $test = new Test();
+//        $test->sayHello();
+//
 //        vendor('Func.Func');
-        echo Func::getHostName();
+//        echo Func::getHostName();
+//
+//        echo C('APP_NAME');
+//        $this->display();
+        $this->assign('hello','nihao');
 
-        echo C('APP_NAME');
+        echo L('error_0');
+
+         $this->display();
+    }
+
+    public function set_name() {
+        session('name','value');  //设置session
+    }
+
+    public function get_name() {
+        echo session('name');
+    }
+
+    public function _empty($name){
+        echo 'action不存在';
     }
 }

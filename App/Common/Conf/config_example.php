@@ -6,14 +6,26 @@ return array(
     'DEFAULT_C_LAYER'=>'Action', // 设置为3.1
     'SESSION_AUTO_START' => true, //是否开启session
 
-    //数据库配置信息
-    'DB_TYPE'   => 'mysql', // 数据库类型
-    'DB_HOST'   => 'localhost', // 服务器地址
-    'DB_NAME'   => 'tortoise', // 数据库名
-    'DB_USER'   => 'root', // 用户名
-    'DB_PWD'    => '123456', // 密码
-    'DB_PORT'   => 3306, // 端口
-    'DB_PREFIX' => 'tf_', // 数据库表前缀
-    'DB_CHARSET'=> 'utf8', // 字符集
-    'DB_DEBUG'  =>  TRUE, // 数据库调试模式 开启后可以记录SQL日志 3.2.3新增
+    // 加载扩展配置文件
+    'LOAD_EXT_CONFIG' => 'db,user',
+
+    //默认错误跳转对应的模板文件
+    'TMPL_ACTION_ERROR' => THINK_PATH . 'Tpl/dispatch_jump.tpl',
+    //默认成功跳转对应的模板文件
+    'TMPL_ACTION_SUCCESS' => THINK_PATH . 'Tpl/dispatch_jump.tpl',
+
+    'DEFAULT_V_LAYER'       =>  'Tpl', // 设置默认的视图层名称
+
+    'TMPL_L_DELIM'=>'{',
+    'TMPL_R_DELIM'=>'}',
+
+    // 显示页面Trace信息
+    'SHOW_PAGE_TRACE' =>true,
+
+
+
+
+
+
+
 );
