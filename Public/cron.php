@@ -20,11 +20,10 @@ if (version_compare(PHP_VERSION, '5.3.0', '<')) {
 define('APP_DEBUG', true);
 
 // 定义应用目录
-define('BIND_MODULE','Index');
+define('BIND_MODULE','Cron');
 define('APP_PATH', '../App/');
 
-// 定义公共模块目录
-//define('COMMON_PATH','../App/Common/');
+
 
 // 引入ThinkPHP入口文件
 require '../ThinkPHP/ThinkPHP.php';
