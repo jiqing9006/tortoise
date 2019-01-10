@@ -162,18 +162,19 @@
         
         <!-- /.navbar-collapse -->
     </nav>
+
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <ol class="breadcrumb">
                     <li>
-                        <i class="fa fa-dashboard"></i>  <a href="/admin.php/Priv/index">管理员管理</a>
+                        <i class="fa fa-dashboard"></i>  <a href="/admin.php/Role/index"><?php echo ($model_name); ?>管理</a>
                     </li>
                     <li class="active">
-                        <i class="fa fa-bar-chart-o"></i> 添加管理员
+                        <i class="fa fa-bar-chart-o"></i> 添加<?php echo ($model_name); ?>
                     </li>
-                    <!--<button type="button" class="btn btn-sm btn-danger btn-erbi-danger" id="add_pri">添加管理员</button>-->
+
                 </ol>
             </div>
         </div>
@@ -181,50 +182,55 @@
             <div class="col-lg-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        添加管理员
+                        添加编辑<?php echo ($model_name); ?>
                     </div>
                     <!-- /.panel-heading -->
                     <div class="panel-body">
                         <div class="table-responsive col-lg-10">
-                            <form class="form-horizontal addForm" method="post" action="save" name="form1" id="add_form">
+                            <form class="form-horizontal addForm" method="post" action="editsave" name="form1" id="edit_form" enctype="multipart/form-data">
+                                <input type="hidden" id="id" name="id" value="<?php echo ($result['id']); ?>">
+                                <input type="hidden" name="page" id="page" value="<?php echo ($page); ?>" />
                                 <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">用户名:</label>
-                                    <input class="form-control-erbi col-lg-5" type="text" name="nick_name" placeholder='用户名' />
-                                    <span class="col-lg-4 text-left erbi-form-right">请填写管理员用户名</span>
+                                    <label class="control-label  col-lg-3  text-right"><span class="control-label required-mark">*</span>名称:</label>
+                                    <input class="form-control-erbi col-lg-3" type="text" name="name" id="name" value="<?php echo ($result['name']); ?>" />
                                 </div>
 
-                                <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">密码:</label>
-                                    <input class="form-control-erbi col-lg-5" type="text" name="password" placeholder='密码' />
-                                    <span class="col-lg-4 text-left erbi-form-right">请填写密码</span>
-                                </div>
 
                                 <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">请再输入一次密码:</label>
-                                    <input class="form-control-erbi col-lg-5" type="text" name="re_password" placeholder='请再输入一次密码' />
-                                    <span class="col-lg-4 text-left erbi-form-right">请再输入一次密码</span>
+                                    <label class="control-label  col-lg-3  text-right">权限:</label><br/>
+                                    <div class="col-lg-8" style="padding-left: 0;">
+                                        <?php if(is_array($r_arr)): $i = 0; $__LIST__ = $r_arr;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?><div class="priv_list">
+                                                <div class="padd-top-7">
+                                                    <b><?php echo ($vo["name"]); ?></b>
+                                                </div>
+                                                <?php if(is_array($vo["next"])): $i = 0; $__LIST__ = $vo["next"];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$so): $mod = ($i % 2 );++$i;?><label class="checkbox-inline width100">
+                                                        <?php
+ if( in_array($so['id'],$role_result['powers'])){ ?>
+                                                        <input type="checkbox" value="<?php echo ($so["id"]); ?>" checked name="power[]"> <?php echo ($so["name"]); ?>
+                                                        <?php
+ }else{ ?>
+                                                        <input type="checkbox" value="<?php echo ($so["id"]); ?>" name="power[]"> <?php echo ($so["name"]); ?>
+                                                        <?php
+ } ?>
+
+                                                    </label><?php endforeach; endif; else: echo "" ;endif; ?>
+
+                                            </div><?php endforeach; endif; else: echo "" ;endif; ?>
+                                    </div>
                                 </div>
 
-                                <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">邮箱:</label>
-                                    <input class="form-control-erbi col-lg-5" type="text" name="email" placeholder='邮箱' />
-                                    <span class="col-lg-4 text-left erbi-form-right">请输入邮箱</span>
-                                </div>
+
 
                                 <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">角色:</label>
-                                    <span class="input-group input-group-option">
-                                        <select name="role_id" id="role_id" class="form-control" style="position: relative; left:-4px;z-index: 1;border-radius:3px;" aria-describedby="object">
-                                            <option value="0">--请选择--</option>
-                                            <?php if(is_array($role_id_name)): $i = 0; $__LIST__ = $role_id_name;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?><option value="<?php echo ($vo["id"]); ?>" ><?php echo ($vo["name"]); ?></option><?php endforeach; endif; else: echo "" ;endif; ?>
-                                        </select>
-                                    </span>
+                                    <label class="control-label  col-lg-3  text-right">权重:</label>
+                                    <input class="form-control-erbi col-lg-3" type="number" name="weight" id="weight" value="<?php echo ((isset($result['weight']) && ($result['weight'] !== ""))?($result['weight']):0); ?>" />
+                                    <span class="col-lg-4 text-left erbi-form-right">（数字越大越靠前）</span>
                                 </div>
 
 
                                 <div class="form-group">
                                     <div class="col-lg-2 col-lg-offset-3">
-                                        <button type="button" class="btn btn-primary col-lg-8" id="add_btn">提交</button>
+                                        <button type="button" class="btn btn-primary col-lg-8" id="edit_btn">提交</button>
                                     </div>
 
                                     <div class="col-lg-2">
@@ -262,33 +268,50 @@
 <script type="text/javascript" src="/plugin/ajaxUpload/ajaxfileupload.js"></script>
 <script type="text/javascript" src="/plugin/jquery.form.new.js"></script>
 <script src="/plugin/My97DatePicker/WdatePicker.js"></script>
+
+<script type="text/javascript" src="/admin/js/common.js"></script>
 <script>
     $(function () {
+        // 定义全局锁
+        var lock_flag = false;
 
+        var page = $('#page').val();
         $("#cancel_btn").on('click',function () {
             window.location.href = 'index';
-        })
+        });
 
-        $("#add_form").ajaxForm({
+        $("#edit_form").ajaxForm({
             dataType: "json",
             success : function(obj){
-                if(obj.status){
-                    alert(obj.message);
-                    window.location.href='index';
+                if(obj.errno == 0){
+                    layer.msg(obj.errdesc);
+                    setTimeout(function() {
+                        window.location.href='index?page=' + page;
+                    },2000);
                 }else{
-                    if(!obj.parameter) obj.parameter = '';
-                    alert(obj.message + obj.parameter);
+                    // 解锁
+                    lock_flag = false;
+                    layer.msg(obj.errdesc);
                 }
                 return false;
             }
-        })
-
-        $("#add_btn").on("click", function(){
-            $("#add_form").submit();
-            return false;
         });
 
+        $("#edit_btn").on("click", function(){
+            // 获取并判断各个值是否填写并正确
+            var name =$("#name").val();
+            if(!name){
+                alert('名称不能为空');
+                return;
+            }
 
+            // 上锁
+            if (!lock_flag) {
+                lock_flag = true;
+                $("#edit_form").submit();
+            }
+            return false;
+        });
 
     })
 </script>

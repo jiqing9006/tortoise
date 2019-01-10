@@ -162,77 +162,95 @@
         
         <!-- /.navbar-collapse -->
     </nav>
+<style>
+    #tbody img {
+        width:300px;
+    }
+
+    .on {
+        cursor: pointer;
+    }
+</style>
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
+
                 <ol class="breadcrumb">
                     <li>
-                        <i class="fa fa-dashboard"></i>  <a href="/admin.php/Priv/index">管理员管理</a>
+                        <i class="fa fa-dashboard"></i>  <a href="/admin.php/Role/index"><?php echo ($model_name); ?>管理</a>
                     </li>
                     <li class="active">
-                        <i class="fa fa-bar-chart-o"></i> 添加管理员
+                        <i class="fa fa-table"></i> <?php echo ($model_name); ?>列表
                     </li>
-                    <!--<button type="button" class="btn btn-sm btn-danger btn-erbi-danger" id="add_pri">添加管理员</button>-->
+                    <button type="button" class="btn btn-sm btn-danger btn-erbi-danger" id="info_add">添加<?php echo ($model_name); ?></button>
                 </ol>
             </div>
         </div>
+
         <div class="row">
             <div class="col-lg-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">
-                        添加管理员
+
+                    <div class="row">
+                        <div class="col-lg-2" style="margin-left: 20px;margin-top: 10px;">
+                                <span class="input-group input-group-sm">
+                                    <span class="input-group-addon" ><b>名称:</b></span>
+                                    <input type="text" class="form-control-erbi" id="s_name" value="<?php echo ($s_name); ?>" aria-describedby="base" placeholder="请输入名称">
+                                </span>
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-primary" style="float: right; margin-right: 35px;margin-top: 10px;" id="search">
+                            <i class="fa fa-search" aria-hidden="true"></i> 搜索
+                        </button>
                     </div>
                     <!-- /.panel-heading -->
-                    <div class="panel-body">
-                        <div class="table-responsive col-lg-10">
-                            <form class="form-horizontal addForm" method="post" action="save" name="form1" id="add_form">
-                                <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">用户名:</label>
-                                    <input class="form-control-erbi col-lg-5" type="text" name="nick_name" placeholder='用户名' />
-                                    <span class="col-lg-4 text-left erbi-form-right">请填写管理员用户名</span>
-                                </div>
-
-                                <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">密码:</label>
-                                    <input class="form-control-erbi col-lg-5" type="text" name="password" placeholder='密码' />
-                                    <span class="col-lg-4 text-left erbi-form-right">请填写密码</span>
-                                </div>
-
-                                <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">请再输入一次密码:</label>
-                                    <input class="form-control-erbi col-lg-5" type="text" name="re_password" placeholder='请再输入一次密码' />
-                                    <span class="col-lg-4 text-left erbi-form-right">请再输入一次密码</span>
-                                </div>
-
-                                <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">邮箱:</label>
-                                    <input class="form-control-erbi col-lg-5" type="text" name="email" placeholder='邮箱' />
-                                    <span class="col-lg-4 text-left erbi-form-right">请输入邮箱</span>
-                                </div>
-
-                                <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">角色:</label>
-                                    <span class="input-group input-group-option">
-                                        <select name="role_id" id="role_id" class="form-control" style="position: relative; left:-4px;z-index: 1;border-radius:3px;" aria-describedby="object">
-                                            <option value="0">--请选择--</option>
-                                            <?php if(is_array($role_id_name)): $i = 0; $__LIST__ = $role_id_name;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?><option value="<?php echo ($vo["id"]); ?>" ><?php echo ($vo["name"]); ?></option><?php endforeach; endif; else: echo "" ;endif; ?>
-                                        </select>
-                                    </span>
-                                </div>
-
-
-                                <div class="form-group">
-                                    <div class="col-lg-2 col-lg-offset-3">
-                                        <button type="button" class="btn btn-primary col-lg-8" id="add_btn">提交</button>
-                                    </div>
-
-                                    <div class="col-lg-2">
-                                        <button type="button" class="btn btn-danger col-lg-8" id="cancel_btn">取消</button>
-                                    </div>
-                                    <div class="clear"></div>
-                                </div>
-                            </form>
+                    <div class="panel-body" style="padding-top: 10px;">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>名称</th>
+                                    <th>角色权限</th>
+                                    <th>权重</th>
+                                    <th>添加时间</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                <?php if(is_array($result)): $i = 0; $__LIST__ = $result;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?><tr data-id="<?php echo ($vo["id"]); ?>">
+                                        <td><?php echo ($vo["id"]); ?></td>
+                                        <td><?php echo ($vo["name"]); ?></td>
+                                        <td><?php echo ($vo["power"]); ?></td>
+                                        <td><?php echo ($vo["weight"]); ?></td>
+                                        <td><?php echo (date('Y-m-d H:i',$vo["add_time"])); ?></td>
+                                        <td>
+                                            <a href="javascript:;" data-id="<?php echo ($vo["id"]); ?>" class="info_edit">编辑</a>
+                                            <a href="javascript:;" data-id="<?php echo ($vo["id"]); ?>" class="info_del">删除</a>
+                                        </td>
+                                    </tr><?php endforeach; endif; else: echo "" ;endif; ?>
+                                </tbody>
+                            </table>
+                            <div class="pagination" id="pages" style="float:right;">
+    <ul>
+        <li><a href="/admin.php/Role/index?page=1<?php echo ($allPage['prefix_page']); echo ($allPage["tail"]); ?>">首页</a></li>
+        <li><a href="/admin.php/Role/index?page=<?php echo ($allPage['prev_page']); echo ($allPage['prefix_page']); echo ($allPage["tail"]); ?>">上一页</a></li>
+        <?php for ($i = $allPage['page_start']; $i <= $allPage['page_end']; $i++) { if ($i == $allPage['page']) { ?>
+        <li class="active"> <a href="/admin.php/Role/index?page=<?php echo $i; echo ($allPage['prefix_page']); echo ($allPage["tail"]); ?>">
+            <?php echo $i; ?>
+        </a> </li>
+        <?php } else { ?>
+        <li><a href="/admin.php/Role/index?page=<?php echo $i; echo ($allPage['prefix_page']); echo ($allPage["tail"]); ?>">
+            <?php echo $i; ?>
+        </a></li>
+        <?php
+ } } ?>
+        <li><a href="/admin.php/Role/index?page=<?php echo ($allPage['next_page']); echo ($allPage['prefix_page']); echo ($allPage["tail"]); ?>">下一页</a></li>
+        <li><a href="/admin.php/Role/index?page=<?php echo ($allPage['page_all']); echo ($allPage['prefix_page']); echo ($allPage["tail"]); ?>">尾页</a></li>
+    </ul>
+</div>
+                            <input type="hidden" name="page" id="page" value="<?php echo ($page); ?>" />
                         </div>
                         <!-- /.table-responsive -->
                     </div>
@@ -241,9 +259,11 @@
                 <!-- /.panel -->
             </div>
         </div>
-    </div>
-</div>
 
+    </div>
+    <!-- /.container-fluid -->
+
+</div>
 </div>
 <!-- /#wrapper -->
 
@@ -263,33 +283,90 @@
 <script type="text/javascript" src="/plugin/jquery.form.new.js"></script>
 <script src="/plugin/My97DatePicker/WdatePicker.js"></script>
 <script>
+    $("#search").on('click', function () {
+        var s_name = $("#s_name").val();
+        var tail = '?search=1';
+        if(s_name){
+            tail += '&s_name=' + s_name;
+        }
+        window.location.href= '/admin.php/Role/index' + tail;
+    });
     $(function () {
+        $("#info_add").on('click',function () {
+            window.location.href= '/admin.php/Role/edit';
+        });
 
-        $("#cancel_btn").on('click',function () {
-            window.location.href = 'index';
-        })
-
-        $("#add_form").ajaxForm({
-            dataType: "json",
-            success : function(obj){
-                if(obj.status){
-                    alert(obj.message);
-                    window.location.href='index';
-                }else{
-                    if(!obj.parameter) obj.parameter = '';
-                    alert(obj.message + obj.parameter);
-                }
-                return false;
+        $(".info_edit").on('click',function () {
+            var id = $(this).data('id');
+            var page = $("#page").val();
+            if(page){
+                var str = '&page='+page;
+            }else{
+                var str = '';
             }
-        })
-
-        $("#add_btn").on("click", function(){
-            $("#add_form").submit();
-            return false;
+            window.location.href= '/admin.php/Role/edit?id='+id+str;
         });
 
 
+        $(".info_del").on('click',function () {
+            if(confirm('确定要删除吗')){
+                var id = $(this).data('id');
+                $.ajax({
+                    type:'POST',
+                    url:'del',
+                    data: {id: id},
+                    dataType:'json',
+                    success:function(data){
+                        if(data.errno == 0){
+                            alert(data.errdesc);
+                            window.location.reload();
+                        }else{
+                            alert(data.errdesc);
+                            return false;
+                        }
+                    }
+                });
+            }
+        });
 
+        $('.change_status').on('click',function(){
+            var _this = $(this);
+            var id = $(this).parent().data('id');
+            var type = $(this).data('type');
+            var q = $(this).data('q');
+            var table = 'role';
+            var set_val;
+
+            if(q == '1'){
+                set_val = 0;
+            }
+            if(q == '0'){
+                set_val = 1;
+            }
+            $.ajax({
+                type:'POST',
+                url:'/admin.php/Common/set',
+                data:{'id':id,'type':type,'set_val':set_val,'table':table},
+                dataType:'json',
+                success:function(data){
+                    if(data.errno == 0){
+                        if (type == 'is_top') {
+                            window.location.reload();
+                        } else {
+                            _this.data('q',set_val);
+                            if(set_val ==1){
+                                _this.html('<i class="fa fa-check erbi-color-green"></i>');
+                            }else{
+                                _this.html('<i class="fa fa-times erbi-color-red"></i>');
+                            }
+                        }
+                    }
+                },
+                error:function(data){
+                    alert("网络错误");
+                }
+            });
+        });
     })
 </script>
 </body>

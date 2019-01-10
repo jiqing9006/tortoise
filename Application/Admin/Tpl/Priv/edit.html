@@ -50,17 +50,6 @@
                                     </span>
                                 </div>
 
-                                <div class="form-group col-lg-12">
-                                    <label class="control-label  col-lg-3  text-right">角色关联:</label>
-                                    <span class="input-group input-group-option">
-                                        <select name="associated_id" id="associated_id" class="form-control" style="position: relative; left:-4px;z-index: 1;border-radius:3px;" aria-describedby="object">
-                                            <option value="0">--请选择--</option>
-                                            <volist name="associated_id_name" id="vo">
-                                                <option value="{$vo.id}" >{$vo.name}</option>
-                                            </volist>
-                                        </select>
-                                    </span>
-                                </div>
 
 
                                 <div class="form-group">
@@ -115,40 +104,6 @@
             return false;
         });
 
-        $("#role_id").on("change",function() {
-            var role_id = $(this).val();
-            getRoleIdName(role_id);
-        });
-
-        function getRoleIdName(role_id,init = 0) {
-            // 异步获取数据
-            $.ajax({
-                type:'POST',
-                url:'getRoleIdName',
-                data: {role_id: role_id},
-                dataType:'json',
-                success:function(data){
-                    if(data.errno == 0){
-                        // 设置
-                        var option_str = '<option value="0">--请选择--</option>';
-                        var data_id_name = data.data;
-                        for(var p in data_id_name){
-                            option_str += '<option value="'+data_id_name[p].id+'">'+data_id_name[p].name+'</option>';
-                        }
-                        $("#associated_id").html(option_str);
-
-                        if (init) {
-                            var associated_id = '{$user_result["associated_id"]}';
-                            $("#associated_id").val(associated_id);
-                        }
-
-                    }else{
-                        alert(data.errdesc);
-                        return false;
-                    }
-                }
-            });
-        }
 
 
     })

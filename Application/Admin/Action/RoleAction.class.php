@@ -2,6 +2,8 @@
 namespace Admin\Action;
 
 
+use Vendor\Func\Json;
+
 /**
  * Created by PhpStorm.
  * User: jiqing
@@ -95,7 +97,6 @@ class RoleAction extends CommonAction
     }
 
     public function editsave() {
-        vendor('Func.Json');
         $json = new Json();
         $role_model = M('role');
         $name = trim($_POST['name']);

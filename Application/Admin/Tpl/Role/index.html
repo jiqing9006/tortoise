@@ -21,7 +21,7 @@
                     <li class="active">
                         <i class="fa fa-table"></i> {$model_name}列表
                     </li>
-                    <!--<button type="button" class="btn btn-sm btn-danger btn-erbi-danger" id="info_add">添加{$model_name}</button>-->
+                    <button type="button" class="btn btn-sm btn-danger btn-erbi-danger" id="info_add">添加{$model_name}</button>
                 </ol>
             </div>
         </div>
@@ -53,7 +53,7 @@
                                     <th>角色权限</th>
                                     <th>权重</th>
                                     <th>添加时间</th>
-                                    <!--<th>操作</th>-->
+                                    <th>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody id="tbody">
@@ -64,10 +64,10 @@
                                         <td>{$vo.power}</td>
                                         <td>{$vo.weight}</td>
                                         <td>{$vo.add_time|date='Y-m-d H:i',###}</td>
-                                        <!--<td>-->
-                                            <!--<a href="javascript:;" data-id="{$vo.id}" class="info_edit">编辑</a>-->
-                                            <!--<a href="javascript:;" data-id="{$vo.id}" class="info_del">删除</a>-->
-                                        <!--</td>-->
+                                        <td>
+                                            <a href="javascript:;" data-id="{$vo.id}" class="info_edit">编辑</a>
+                                            <a href="javascript:;" data-id="{$vo.id}" class="info_del">删除</a>
+                                        </td>
                                     </tr>
                                 </volist>
                                 </tbody>

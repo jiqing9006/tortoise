@@ -95,11 +95,6 @@ class PrivAction extends CommonAction
             $this->say($error);
         }
 
-        $associated_id = trim($_POST['associated_id']);
-        if( empty($associated_id) ) {
-            $error['parameter'] = '关联内容';
-            $this->say($error);
-        }
 
         $data = [
             'nick_name'     => $nick_name,
@@ -109,7 +104,6 @@ class PrivAction extends CommonAction
             'super'         => 0,
             'status'        => 0,
             'role_id'       => $role_id,
-            'associated_id' => $associated_id
         ];
         $admin_user = M('admin_user');
         $flag = $admin_user->add($data);

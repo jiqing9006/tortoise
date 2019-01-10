@@ -192,7 +192,6 @@
                                     <th>#</th>
                                     <th>管理员名称</th>
                                     <th>管理员角色</th>
-                                    <th>管理员关联</th>
                                     <th>管理员级别</th>
                                     <th>加入时间</th>
                                     <th>操作</th>
@@ -203,7 +202,6 @@
                                         <td><?php echo ($vo["id"]); ?></td>
                                         <td><?php echo ($vo["nick_name"]); ?></td>
                                         <td><?php echo ($vo["role_name"]); ?></td>
-                                        <td><?php echo ($vo["associated_name"]); ?></td>
                                         <td>
                                             <?php
  if($vo['super']){ echo '超级管理员'; }else{ echo '普通管理员'; } ?>
