@@ -1,0 +1,178 @@
+<include file="Public:header" />
+<include file="Public:nav" />
+<style>
+    #tbody img {
+        width:300px;
+    }
+
+    .on {
+        cursor: pointer;
+    }
+</style>
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <ol class="breadcrumb">
+                    <li>
+                        <i class="fa fa-dashboard"></i>  <a href="__APP__/Role/index">{$model_name}管理</a>
+                    </li>
+                    <li class="active">
+                        <i class="fa fa-table"></i> {$model_name}列表
+                    </li>
+                    <!--<button type="button" class="btn btn-sm btn-danger btn-erbi-danger" id="info_add">添加{$model_name}</button>-->
+                </ol>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+
+                    <div class="row">
+                        <div class="col-lg-2" style="margin-left: 20px;margin-top: 10px;">
+                                <span class="input-group input-group-sm">
+                                    <span class="input-group-addon" ><b>名称:</b></span>
+                                    <input type="text" class="form-control-erbi" id="s_name" value="{$s_name}" aria-describedby="base" placeholder="请输入名称">
+                                </span>
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-primary" style="float: right; margin-right: 35px;margin-top: 10px;" id="search">
+                            <i class="fa fa-search" aria-hidden="true"></i> 搜索
+                        </button>
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body" style="padding-top: 10px;">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>名称</th>
+                                    <th>角色权限</th>
+                                    <th>权重</th>
+                                    <th>添加时间</th>
+                                    <!--<th>操作</th>-->
+                                </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                <volist name="result" id="vo">
+                                    <tr data-id="{$vo.id}">
+                                        <td>{$vo.id}</td>
+                                        <td>{$vo.name}</td>
+                                        <td>{$vo.power}</td>
+                                        <td>{$vo.weight}</td>
+                                        <td>{$vo.add_time|date='Y-m-d H:i',###}</td>
+                                        <!--<td>-->
+                                            <!--<a href="javascript:;" data-id="{$vo.id}" class="info_edit">编辑</a>-->
+                                            <!--<a href="javascript:;" data-id="{$vo.id}" class="info_del">删除</a>-->
+                                        <!--</td>-->
+                                    </tr>
+                                </volist>
+                                </tbody>
+                            </table>
+                            <include file="Public:page" />
+                            <input type="hidden" name="page" id="page" value="{$page}" />
+                        </div>
+                        <!-- /.table-responsive -->
+                    </div>
+                    <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+            </div>
+        </div>
+
+    </div>
+    <!-- /.container-fluid -->
+
+</div>
+<include file="Public:bottomJs" />
+<script>
+    $("#search").on('click', function () {
+        var s_name = $("#s_name").val();
+        var tail = '?search=1';
+        if(s_name){
+            tail += '&s_name=' + s_name;
+        }
+        window.location.href= '__APP__/Role/index' + tail;
+    });
+    $(function () {
+        $("#info_add").on('click',function () {
+            window.location.href= '__URL__/edit';
+        });
+
+        $(".info_edit").on('click',function () {
+            var id = $(this).data('id');
+            var page = $("#page").val();
+            if(page){
+                var str = '&page='+page;
+            }else{
+                var str = '';
+            }
+            window.location.href= '__URL__/edit?id='+id+str;
+        });
+
+
+        $(".info_del").on('click',function () {
+            if(confirm('确定要删除吗')){
+                var id = $(this).data('id');
+                $.ajax({
+                    type:'POST',
+                    url:'del',
+                    data: {id: id},
+                    dataType:'json',
+                    success:function(data){
+                        if(data.errno == 0){
+                            alert(data.errdesc);
+                            window.location.reload();
+                        }else{
+                            alert(data.errdesc);
+                            return false;
+                        }
+                    }
+                });
+            }
+        });
+
+        $('.change_status').on('click',function(){
+            var _this = $(this);
+            var id = $(this).parent().data('id');
+            var type = $(this).data('type');
+            var q = $(this).data('q');
+            var table = 'role';
+            var set_val;
+
+            if(q == '1'){
+                set_val = 0;
+            }
+            if(q == '0'){
+                set_val = 1;
+            }
+            $.ajax({
+                type:'POST',
+                url:'__APP__/Common/set',
+                data:{'id':id,'type':type,'set_val':set_val,'table':table},
+                dataType:'json',
+                success:function(data){
+                    if(data.errno == 0){
+                        if (type == 'is_top') {
+                            window.location.reload();
+                        } else {
+                            _this.data('q',set_val);
+                            if(set_val ==1){
+                                _this.html('<i class="fa fa-check erbi-color-green"></i>');
+                            }else{
+                                _this.html('<i class="fa fa-times erbi-color-red"></i>');
+                            }
+                        }
+                    }
+                },
+                error:function(data){
+                    alert("网络错误");
+                }
+            });
+        });
+    })
+</script>
+<include file="Public:footer" />

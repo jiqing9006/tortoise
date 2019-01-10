@@ -1,0 +1,146 @@
+<include file="Public:header" />
+<include file="Public:nav" />
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <ol class="breadcrumb">
+                    <li>
+                        <i class="fa fa-dashboard"></i>  <a href="__APP__/Role/index">{$model_name}管理</a>
+                    </li>
+                    <li class="active">
+                        <i class="fa fa-bar-chart-o"></i> 添加{$model_name}
+                    </li>
+
+                </ol>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        添加编辑{$model_name}
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="table-responsive col-lg-10">
+                            <form class="form-horizontal addForm" method="post" action="editsave" name="form1" id="edit_form" enctype="multipart/form-data">
+                                <input type="hidden" id="id" name="id" value="{$result['id']}">
+                                <input type="hidden" name="page" id="page" value="{$page}" />
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right"><span class="control-label required-mark">*</span>名称:</label>
+                                    <input class="form-control-erbi col-lg-3" type="text" name="name" id="name" value="{$result['name']}" />
+                                </div>
+
+
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right">权限:</label><br/>
+                                    <div class="col-lg-8" style="padding-left: 0;">
+                                        <volist name="r_arr" id="vo">
+                                            <div class="priv_list">
+                                                <div class="padd-top-7">
+                                                    <b>{$vo.name}</b>
+                                                </div>
+                                                <volist name="vo.next" id="so">
+                                                    <label class="checkbox-inline width100">
+                                                        <?php
+                                                            if( in_array($so['id'],$role_result['powers'])){
+                                                        ?>
+                                                        <input type="checkbox" value="{$so.id}" checked name="power[]"> {$so.name}
+                                                        <?php
+                                                            }else{
+                                                        ?>
+                                                        <input type="checkbox" value="{$so.id}" name="power[]"> {$so.name}
+                                                        <?php
+                                                            }
+                                                        ?>
+
+                                                    </label>
+                                                </volist>
+
+                                            </div>
+                                        </volist>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right">权重:</label>
+                                    <input class="form-control-erbi col-lg-3" type="number" name="weight" id="weight" value="{$result['weight']|default=0}" />
+                                    <span class="col-lg-4 text-left erbi-form-right">（数字越大越靠前）</span>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="col-lg-2 col-lg-offset-3">
+                                        <button type="button" class="btn btn-primary col-lg-8" id="edit_btn">提交</button>
+                                    </div>
+
+                                    <div class="col-lg-2">
+                                        <button type="button" class="btn btn-danger col-lg-8" id="cancel_btn">取消</button>
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.table-responsive -->
+                    </div>
+                    <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<include file="Public:bottomJs" />
+
+<script type="text/javascript" src="/admin/js/common.js"></script>
+<script>
+    $(function () {
+        // 定义全局锁
+        var lock_flag = false;
+
+        var page = $('#page').val();
+        $("#cancel_btn").on('click',function () {
+            window.location.href = 'index';
+        });
+
+        $("#edit_form").ajaxForm({
+            dataType: "json",
+            success : function(obj){
+                if(obj.errno == 0){
+                    layer.msg(obj.errdesc);
+                    setTimeout(function() {
+                        window.location.href='index?page=' + page;
+                    },2000);
+                }else{
+                    // 解锁
+                    lock_flag = false;
+                    layer.msg(obj.errdesc);
+                }
+                return false;
+            }
+        });
+
+        $("#edit_btn").on("click", function(){
+            // 获取并判断各个值是否填写并正确
+            var name =$("#name").val();
+            if(!name){
+                alert('名称不能为空');
+                return;
+            }
+
+            // 上锁
+            if (!lock_flag) {
+                lock_flag = true;
+                $("#edit_form").submit();
+            }
+            return false;
+        });
+
+    })
+</script>
+<include file="Public:footer" />

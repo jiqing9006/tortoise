@@ -13,7 +13,7 @@ then
 fi
 
 # 进入APP目录下
-cd App
+cd Application
 
 # 清理runtime文件夹
 if [ ! -d  "Runtime" ];then

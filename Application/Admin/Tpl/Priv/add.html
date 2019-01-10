@@ -1,0 +1,153 @@
+<include file="Public:header" />
+<include file="Public:nav" />
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <ol class="breadcrumb">
+                    <li>
+                        <i class="fa fa-dashboard"></i>  <a href="__APP__/Priv/index">管理员管理</a>
+                    </li>
+                    <li class="active">
+                        <i class="fa fa-bar-chart-o"></i> 添加管理员
+                    </li>
+                    <!--<button type="button" class="btn btn-sm btn-danger btn-erbi-danger" id="add_pri">添加管理员</button>-->
+                </ol>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        添加管理员
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="table-responsive col-lg-10">
+                            <form class="form-horizontal addForm" method="post" action="save" name="form1" id="add_form">
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right">用户名:</label>
+                                    <input class="form-control-erbi col-lg-5" type="text" name="nick_name" placeholder='用户名' />
+                                    <span class="col-lg-4 text-left erbi-form-right">请填写管理员用户名</span>
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right">密码:</label>
+                                    <input class="form-control-erbi col-lg-5" type="text" name="password" placeholder='密码' />
+                                    <span class="col-lg-4 text-left erbi-form-right">请填写密码</span>
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right">请再输入一次密码:</label>
+                                    <input class="form-control-erbi col-lg-5" type="text" name="re_password" placeholder='请再输入一次密码' />
+                                    <span class="col-lg-4 text-left erbi-form-right">请再输入一次密码</span>
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right">邮箱:</label>
+                                    <input class="form-control-erbi col-lg-5" type="text" name="email" placeholder='邮箱' />
+                                    <span class="col-lg-4 text-left erbi-form-right">请输入邮箱</span>
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right">角色:</label>
+                                    <span class="input-group input-group-option">
+                                        <select name="role_id" id="role_id" class="form-control" style="position: relative; left:-4px;z-index: 1;border-radius:3px;" aria-describedby="object">
+                                            <option value="0">--请选择--</option>
+                                            <volist name="role_id_name" id="vo">
+                                                <option value="{$vo.id}" >{$vo.name}</option>
+                                            </volist>
+                                        </select>
+                                    </span>
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right">角色关联:</label>
+                                    <span class="input-group input-group-option">
+                                        <select name="associated_id" id="associated_id" class="form-control" style="position: relative; left:-4px;z-index: 1;border-radius:3px;" aria-describedby="object">
+                                            <option value="0">--请选择--</option>
+                                            <volist name="associated_id_name" id="vo">
+                                                <option value="{$vo.id}" >{$vo.name}</option>
+                                            </volist>
+                                        </select>
+                                    </span>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-lg-2 col-lg-offset-3">
+                                        <button type="button" class="btn btn-primary col-lg-8" id="add_btn">提交</button>
+                                    </div>
+
+                                    <div class="col-lg-2">
+                                        <button type="button" class="btn btn-danger col-lg-8" id="cancel_btn">取消</button>
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.table-responsive -->
+                    </div>
+                    <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<include file="Public:bottomJs" />
+<script>
+    $(function () {
+
+        $("#cancel_btn").on('click',function () {
+            window.location.href = 'index';
+        })
+
+        $("#add_form").ajaxForm({
+            dataType: "json",
+            success : function(obj){
+                if(obj.status){
+                    alert(obj.message);
+                    window.location.href='index';
+                }else{
+                    if(!obj.parameter) obj.parameter = '';
+                    alert(obj.message + obj.parameter);
+                }
+                return false;
+            }
+        })
+
+        $("#add_btn").on("click", function(){
+            $("#add_form").submit();
+            return false;
+        });
+
+        $("#role_id").on("change",function() {
+            var role_id = $(this).val();
+            // 异步获取数据
+            $.ajax({
+                type:'POST',
+                url:'getRoleIdName',
+                data: {role_id: role_id},
+                dataType:'json',
+                success:function(data){
+                    if(data.errno == 0){
+                        // 设置
+                        var option_str = '<option value="0">--请选择--</option>';
+                        var data_id_name = data.data;
+                        for(var p in data_id_name){
+                            option_str += '<option value="'+data_id_name[p].id+'">'+data_id_name[p].name+'</option>';
+                        }
+                        $("#associated_id").html(option_str);
+                    }else{
+                        alert(data.errdesc);
+                        return false;
+                    }
+                }
+            });
+        });
+
+
+    })
+</script>
+<include file="Public:footer" />

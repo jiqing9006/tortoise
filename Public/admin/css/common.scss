@@ -1,0 +1,52 @@
+.panel-body {
+  .cm_green {
+    color:#00801D!important;
+  }
+
+  .cm_red {
+    color: #8E0613!important;
+  }
+
+  .cm_blue {
+    color: #6699FF!important;
+  }
+
+  .cm_yellow {
+    color: #CCCC33!important;
+  }
+
+  .cm-ml-5 {
+    margin-left:0.5rem!important;
+  }
+
+  .cm-ml-10-minus {
+    margin-left:-1.0rem!important;
+  }
+
+  .cm-ml-15-minus {
+    margin-left:-1.5rem!important;
+  }
+
+  .cm-ml-20-minus {
+    margin-left:-2.0rem!important;
+  }
+}
+
+.over-ellipsis{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  white-space:nowrap;
+  width:130px;
+  height:24px;
+  display:block;
+}
+
+.glyphicon {
+  top:0px!important;
+}
+
+.required-mark {
+  color:#DD5454;
+  padding-right: 5px;
+}
