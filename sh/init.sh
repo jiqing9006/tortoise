@@ -21,6 +21,7 @@ if [ ! -d  "Runtime" ];then
     echo $password|sudo -S chmod -R 777 Runtime
 else
     echo $password|sudo -S rm -rf Runtime/*
+    echo $password|sudo -S chmod -R 777 Runtime
 fi
 
 
