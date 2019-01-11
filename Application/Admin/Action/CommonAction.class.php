@@ -204,7 +204,6 @@ class CommonAction extends Action {
         $upload->upload();
         $info = $upload->getUploadFileInfo();//取得成功上传的文件信息
         if($info){
-
             if ($type == 'cdn') {
                 vendor('Func.Func');
                 vendor('Qiniu.Qiniu');
@@ -272,7 +271,6 @@ class CommonAction extends Action {
 
             $image = (new imgCompress($source,$percent))->compressImg($dst_img);
 
-            vendor('Func.Func');
             vendor('Qiniu.Qiniu');
             $qiniu = new Qiniu();
             $file =  C('SF_HOST'). $upload->savePath . $info[0]['savename'];
@@ -321,7 +319,6 @@ class CommonAction extends Action {
 
         $info = $upload->getUploadFileInfo();//取得成功上传的文件信息
         if($info){
-            vendor('Func.Func');
             vendor('Qiniu.Qiniu');
             $qiniu = new Qiniu();
             $file =  C('SF_HOST'). $upload->savePath . $info[0]['savename'];
@@ -372,7 +369,6 @@ class CommonAction extends Action {
 
         $info = $upload->getUploadFileInfo();//取得成功上传的文件信息
         if($info){
-            vendor('Func.Func');
             vendor('Qiniu.Qiniu');
             $qiniu = new Qiniu();
             $file =  C('SF_HOST'). $upload->savePath . $info[0]['savename'];
@@ -405,7 +401,6 @@ class CommonAction extends Action {
 
 
     public function set(){
-        vendor('Func.Json');
         $json = new Json();
         $id = (int)$_POST['id'];
         $type = trim($_POST['type']);
