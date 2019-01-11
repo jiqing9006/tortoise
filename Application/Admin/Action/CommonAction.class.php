@@ -165,7 +165,7 @@ class CommonAction extends Action {
             return $res;
         }
 
-        vendor("Log.Clog");
+
         if($ksize == 1){
             $size = getimagesize($_FILES[$name]['tmp_name']);
             $sizearray = explode('"',$size[3]);
@@ -260,8 +260,6 @@ class CommonAction extends Action {
         $upload->upload();
 
         $info = $upload->getUploadFileInfo();//取得成功上传的文件信息
-        vendor('Log.Clog');
-        Clog::setLog($info);
         if($info){
             vendor('Img.imgCompress');
             $source =  $info[0]['savepath'].$info[0]['savename'];//原图片名称
@@ -292,7 +290,6 @@ class CommonAction extends Action {
         }else{
             $res['error']='上传失败!!';
         }
-        Clog::setLog($res);
         return $res;
     }
 

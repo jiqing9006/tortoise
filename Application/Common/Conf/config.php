@@ -13,9 +13,9 @@ return array(
     'URL_HTML_SUFFIX'=>'',
 
     //默认错误跳转对应的模板文件
-    'TMPL_ACTION_ERROR' => THINK_PATH . 'Tpl/dispatch_jump.tpl',
+    'TMPL_ACTION_ERROR' => THINK_PATH . '../Tpl/dispatch_jump.tpl',
     //默认成功跳转对应的模板文件
-    'TMPL_ACTION_SUCCESS' => THINK_PATH . 'Tpl/dispatch_jump.tpl',
+    'TMPL_ACTION_SUCCESS' => THINK_PATH . '../Tpl/dispatch_jump.tpl',
 
     'DEFAULT_V_LAYER'       =>  'Tpl', // 设置默认的视图层名称
 
