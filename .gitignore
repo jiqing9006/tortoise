@@ -3,7 +3,7 @@
 *.log
 
 # Runtime 缓存文件
-App/Runtime
+Application/Runtime
 
 # upload 图片文件
 Public/site_upload
