@@ -5,6 +5,7 @@ use Think\Action;
 use Common\Model\ActionModel;
 use Common\Service\UserService;
 use Vendor\Func\Func;
+use Vendor\Func\Red;
 use Vendor\Log\Clog;
 
 class IndexAction extends Action

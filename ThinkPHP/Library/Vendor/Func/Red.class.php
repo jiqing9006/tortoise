@@ -32,7 +32,7 @@ class Red {
 
     private function __construct() {
     
-         $this->_red = new Redis(); 
+         $this->_red = new \Redis();
          $this->_red->connect(C("REDIS_HOST"),C("REDIS_PORT"));
          $this->_red->auth('Ttklb0010');
          return Red::$redis;
