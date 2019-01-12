@@ -25,6 +25,7 @@ define('__APP__',$_SERVER["SCRIPT_NAME"]);
 
 
 // 引入ThinkPHP入口文件
+require("../ThinkPHP/Library/Vendor/Qiniu/autoload.php");
 require '../ThinkPHP/ThinkPHP.php';
 
 

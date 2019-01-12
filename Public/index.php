@@ -24,6 +24,7 @@ define('APP_PATH', '../Application/');
 define('BIND_MODULE','Index');
 define('__APP__',$_SERVER["SCRIPT_NAME"]);
 // 引入ThinkPHP入口文件
+require("../ThinkPHP/Library/Vendor/Qiniu/autoload.php");
 require '../ThinkPHP/ThinkPHP.php';
 
 // 亲^_^ 后面不需要任何代码了 就是如此简单

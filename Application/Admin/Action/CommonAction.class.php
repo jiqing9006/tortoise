@@ -1,12 +1,20 @@
 <?php
 namespace Admin\Action;
 
+use Org\Net\UploadFile;
 use Think\Action;
 use Vendor\Func\Func;
 use Vendor\Func\Json;
+use Vendor\Func\Uploader;
+use Vendor\Log\Clog;
+use Vendor\Qiniu\Qiniu;
 
 // 本类由系统自动生成，仅供测试用途
 class CommonAction extends Action {
+    // 未删除
+    const NOT_DEL = 0;
+    // 已删除
+    const IS_DEL  = 1;
     protected $json;
     public function _initialize() {
         header("Content-type: text/html; charset=utf-8");
@@ -159,43 +167,34 @@ class CommonAction extends Action {
      * 上传方法    大小,宽度,高度,文件夹
      */
     public function upload($ksize, $widths, $heights, $folders, $name = 'file',$type='cdn'){
-
+        // 大小校验
         if($_FILES[$name]['size'] > 1024000){
             $res['error'] = '图片质量大小不能超过1M！';
             return $res;
         }
 
-
-        if($ksize == 1){
+        // 尺寸校验
+        if($ksize == 1){ // 宽高都限制
             $size = getimagesize($_FILES[$name]['tmp_name']);
-            $sizearray = explode('"',$size[3]);
             $width = $size[0];
             $height = $size[1];
-            if((int)$width == (int)$widths && (int)$height == (int)$heights){
-                //continue
-            }else{
+            if((int)$width != (int)$widths || (int)$height != (int)$heights){
                 $res['error']='尺寸不合要求!';
                 return $res;
             }
-        }elseif($ksize == 2){
+        }elseif($ksize == 2){ // 只限制高度
             $size = getimagesize($_FILES[$name]['tmp_name']);
-            $sizearray = explode('"',$size[3]);
             $height = $size[1];
-            if($height == $heights){
-                //continue
-            }else{
+            if($height != $heights){
                 $res['error']='尺寸不合要求!';
                 return $res;
             }
         }
 
-        $us=$folders;
-        import('ORG.Net.UploadFile');
         $upload = new UploadFile();								// 实例化上传类
-        $upload->maxSize  = 3145728000000;						// 设置附件上传大小
+        $upload->maxSize  = 314572800;						// 设置附件上传大小 3*1024*1024 3M
         $upload->saveRule = time().'_'.mt_rand(); // uniqid
-        $folders = date('Ymd',time());
-        $upload->savePath =  "site_upload/".$us.'/'.$folders.'/';// 设置附件上传目录
+        $upload->savePath =  "site_upload/".$folders.'/'.date('Ymd',time()).'/';// 设置附件上传目录
         if (!is_dir($upload->savePath)){
             if (!mkdir($concurrentDirectory = './' . $upload->savePath, 0777, true) && !is_dir($concurrentDirectory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
@@ -205,8 +204,6 @@ class CommonAction extends Action {
         $info = $upload->getUploadFileInfo();//取得成功上传的文件信息
         if($info){
             if ($type == 'cdn') {
-                vendor('Func.Func');
-                vendor('Qiniu.Qiniu');
                 $qiniu = new Qiniu();
                 $img =  C('SF_HOST'). $upload->savePath . $info[0]['savename'];
                 $ext = pathinfo($img, PATHINFO_EXTENSION);
@@ -226,70 +223,11 @@ class CommonAction extends Action {
                 $res['ext']       = pathinfo($res['save_name'], PATHINFO_EXTENSION);
             }
         }else{
-            $res['error']='上传失败!!';
+            $res['error']=$upload->getErrorMsg();
         }
         return $res;
     }
 
-    /**
-     * @param $folders 文件夹名称
-     * @param string $name 文件名称
-     * @param float|int $max_size 最大文件大小
-     * @param array $allowExts 允许上传的类型
-     * @return mixed
-     */
-    public function upload_original($folders, $name = 'file' ,$max_size = 66560000 ,$allowExts = ['jpeg','jpg']){
-        $file_size = $_FILES[$name]['size'];
-        if($file_size > $max_size){
-            $res['error'] = '大小不能超过65M！';
-            return $res;
-        }
-        import('ORG.Net.UploadFile');
-        $upload = new UploadFile();								// 实例化上传类
-        $upload->allowExts = $allowExts;                        // 允许上传的文件格式
-        $upload->maxSize  = $max_size;						    // 设置附件上传大小
-        $upload->saveRule = time().'_'.mt_rand(); // 'uniqid'
-        $date_folders = date('Ymd',time());
-        $upload->savePath =  "site_upload/".$folders.'/'.$date_folders.'/';// 设置附件上传目录
-        if (!is_dir($upload->savePath)){
-            if (!mkdir($concurrentDirectory = './' . $upload->savePath, 0777, true) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-        }
-        $upload->upload();
-
-        $info = $upload->getUploadFileInfo();//取得成功上传的文件信息
-        if($info){
-            vendor('Img.imgCompress');
-            $source =  $info[0]['savepath'].$info[0]['savename'];//原图片名称
-            $dst_img = $info[0]['savepath'].$info[0]['savename'];//压缩后图片的名称
-            if ($file_size > 30 * 1024 *1000) {
-                $percent = 0.8;
-            } else {
-                $percent = 1;  #原图压缩，不缩放，但体积大大降低
-            }
-
-            $image = (new imgCompress($source,$percent))->compressImg($dst_img);
-
-            vendor('Qiniu.Qiniu');
-            $qiniu = new Qiniu();
-            $file =  C('SF_HOST'). $upload->savePath . $info[0]['savename'];
-            $ext = pathinfo($file, PATHINFO_EXTENSION);
-            $name = time() . mt_rand() . '.' . $ext;
-            $success = $qiniu->up($file, $name, C('QINIU.BUCKET'));
-            if($success){
-                @unlink('./' .$info[0]['savepath'] . $info[0]['savename']);
-                $res['msg']='ok';
-                $res['save_name'] = C('CDN_HOST') . $name;
-            }else{
-                @unlink('./' .$info[0]['savepath'] . $info[0]['savename']);
-                $res['error'] = '上传失败!!';
-            }
-        }else{
-            $res['error']='上传失败!!';
-        }
-        return $res;
-    }
 
     /**
      * @param $folders 文件夹名称
@@ -298,12 +236,10 @@ class CommonAction extends Action {
      * @return mixed
      */
     public function upload_file($folders, $name = 'file' ,$allowExts = ['pdf'] ,$max_size = 51200000 ){
-
         if($_FILES[$name]['size'] > $max_size){
             $res['error'] = '文件大小不能超过50M！';
             return $res;
         }
-        import('ORG.Net.UploadFile');
         $upload = new UploadFile();								// 实例化上传类
         $upload->allowExts = $allowExts;                        // 允许上传的文件格式
         $upload->maxSize  = $max_size;						    // 设置附件上传大小
@@ -316,10 +252,8 @@ class CommonAction extends Action {
             }
         }
         $upload->upload();
-
         $info = $upload->getUploadFileInfo();//取得成功上传的文件信息
         if($info){
-            vendor('Qiniu.Qiniu');
             $qiniu = new Qiniu();
             $file =  C('SF_HOST'). $upload->savePath . $info[0]['savename'];
             $ext = pathinfo($file, PATHINFO_EXTENSION);
@@ -334,60 +268,80 @@ class CommonAction extends Action {
                 $res['error'] = '上传失败!!';
             }
         }else{
-            $res['error']='上传失败!!';
+            $res['error']=$upload->getErrorMsg();
         }
         return $res;
     }
 
 
-    /**
-     * @param $folders 文件夹名称
-     * @param string $name 文件名称
-     * @param float|int $max_size 最大文件大小
-     * @param array $allowExts 允许上传的类型
-     * @return mixed
-     */
-    public function upload_audio($folders, $name = 'file' ,$max_size = 51200000 ,$allowExts = ['mp3','wav']){
+    public function wang_editor(){
+        $config = array(
+            "savePath" => "./site_upload/wang_editor/" ,             //存储文件夹
+            "maxSize" => 1000000 ,                   //允许的文件最大尺寸，单位KB
+            "allowFiles" => array( ".gif" , ".png" , ".jpg" , ".jpeg" , ".bmp" )  //允许的文件格式
+        );
 
-        if($_FILES[$name]['size'] > $max_size){
-            $res['error'] = '音频大小不能超过50M！';
-            return $res;
-        }
-        import('ORG.Net.UploadFile');
-        $upload = new UploadFile();								// 实例化上传类
-        $upload->allowExts = $allowExts;                        // 允许上传的文件格式
-        $upload->maxSize  = $max_size;						    // 设置附件上传大小
-        $upload->saveRule = time().'_'.mt_rand(); // 'uniqid'
-        $date_folders = date('Ymd',time());
-        $upload->savePath =  "site_upload/".$folders.'/'.$date_folders.'/';// 设置附件上传目录
-        if (!is_dir($upload->savePath)){
-            if (!mkdir($concurrentDirectory = './' . $upload->savePath, 0777, true) && !is_dir($concurrentDirectory)) {
+        if (!is_dir($config['savePath'])){
+            if (!mkdir($concurrentDirectory = $config['savePath'], 0777, true) && !is_dir($concurrentDirectory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
         }
-        $upload->upload();
 
-        $info = $upload->getUploadFileInfo();//取得成功上传的文件信息
-        if($info){
-            vendor('Qiniu.Qiniu');
-            $qiniu = new Qiniu();
-            $file =  C('SF_HOST'). $upload->savePath . $info[0]['savename'];
-            $ext = pathinfo($file, PATHINFO_EXTENSION);
-            $name = time() . mt_rand() . '.' . $ext;
-            $success = $qiniu->up($file, $name, C('QINIU.BUCKET'));
-            if($success){
-                @unlink('./' .$info[0]['savepath'] . $info[0]['savename']);
-                $res['msg']='ok';
-                $res['save_name'] = C('CDN_HOST') . $name;
-            }else{
-                @unlink('./' .$info[0]['savepath'] . $info[0]['savename']);
-                $res['error'] = '上传失败!!';
-            }
-        }else{
-            $res['error']='上传失败!!';
+        $up = new Uploader( "editor_img" , $config );
+        $info = $up->getFileInfo();
+
+        $info['url'] = substr($info['url'],1);
+        $host_name = Func::getHostName();
+        $url = 'http://' . $host_name . $info['url'];
+        $qiniu = new Qiniu();
+        $ext = pathinfo($url, PATHINFO_EXTENSION);
+        $name = time() . mt_rand() . '.' . $ext;
+        $s = $qiniu->up($url, $name, C('QINIU.BUCKET'));
+        if($s){
+            @unlink('.'.$info['url']);
+            $info['url'] = C('CDN_HOST').$name;
         }
-        return $res;
+        if ($info) {
+            $this->json->setAttr('data',[$info['url']]);
+            $this->json->Send();
+        } else {
+            $this->json->setErr(10099,'上传失败');
+            $this->json->Send();
+        }
     }
+
+    public function ck_editor(){
+        $config = array(
+            "savePath" => "./site_upload/ck_editor/" ,             //存储文件夹
+            "maxSize" => 1000000 ,                   //允许的文件最大尺寸，单位KB
+            "allowFiles" => array( ".gif" , ".png" , ".jpg" , ".jpeg" , ".bmp" )  //允许的文件格式
+        );
+
+        $up = new Uploader( "upload" , $config );
+        $info = $up->getFileInfo();
+        $info['url'] = substr($info['url'],1);
+        $host_name = Func::getHostName();
+        $url = 'http://' . $host_name . $info['url'];
+        $qiniu = new Qiniu();
+        $ext = pathinfo($url, PATHINFO_EXTENSION);
+        $name = time() . mt_rand() . '.' . $ext;
+        $s = $qiniu->up($url, $name, C('QINIU.BUCKET'));
+        if($s){
+            @unlink('.'.$info['url']);
+            $info['url'] = C('CDN_HOST').$name;
+        }
+        if ($info) {
+            $this->json->setAttr('uploaded',true);
+            $this->json->setAttr('url',[$info['url']]);
+            $this->json->Send();
+        } else {
+            $this->json->setAttr('uploaded',false);
+            $this->json->setErr(10099,'上传失败');
+            $this->json->Send();
+        }
+    }
+
+
 
     public function send_message($type, $uid){
         //type=1:发货消息   type=2:宝贝有新动态  type=3:收到优惠券
@@ -507,86 +461,7 @@ class CommonAction extends Action {
                 $this->json->Send();
             }
             if($_FILES[$file_name]['tmp_name']){
-                $file=$this->upload(1,$width,$height,'home_banner',$file_name);
-                $file_flag=1;
-            }else{
-                $file_flag=0;
-            }
-            if($file_flag){
-                if($file['save_name']){
-                    $img=$file['save_name'];
-                }else{
-                    $this->json->setErr(10002,$file['error']."尺寸为".$width."*".$height);
-                    $this->json->Send();
-                }
-            }
-            if(!$img){
-                $this->json->setErr(10003,'图片上传有误');
-                $this->json->Send();
-            } else {
-                return $img;
-            }
-        } else {
-            if ($_FILES[$file_name]) {
-                if ($_FILES[$file_name]['tmp_name']) {
-                    $file_flag = 1;
-                    $file = $this->upload(1, $width, $height, 'home_banner', $file_name);
-                } else {
-                    $file_flag = 0;
-                }
-                if ($file_flag) {
-                    if ($file['save_name']) {
-                        $img = $file['save_name'];
-                    } else {
-                        $this->json->setErr(10004,$file['error']."尺寸为".$width."*".$height);
-                        $this->json->Send();
-                    }
-                }
-                if (!$img) {
-                    $this->json->setErr(10005, '图片上传失败');
-                    $this->json->Send();
-                } else {
-                    return $img;
-                }
-            } else {
-                return false;
-            }
-        }
-    }
-
-
-    protected function _check_original_img($file_name,$required,$temp_file) {
-        // 操作好全局变量，模拟一次上传一张的数据效果
-        unset($_FILES);
-        $_FILES[$file_name] = $temp_file[$file_name];
-
-
-        if ($required) {
-            if(!$_FILES[$file_name]){
-                $this->json->setErr(10001,'请上传图片');
-                $this->json->Send();
-            }
-
-            $exif_arr = read_exif_data($_FILES[$file_name]['tmp_name']);
-            if (!$exif_arr || !array_key_exists('Model',$exif_arr)) { // Model
-                $this->json->setErr(10001,'请上传相机原图');
-                $this->json->Send();
-            }
-
-            $out_data = [
-                'model' => $exif_arr['Model'],
-                'focal_length' => $exif_arr['FocalLength'],
-                'exposure_mode' => $exif_arr['ExposureMode'],
-                'aperture_f_number' => $exif_arr['COMPUTED']['ApertureFNumber'],
-                'exposure_time' => $exif_arr['ExposureTime'],
-                'iso_speed_ratings' => $exif_arr['ISOSpeedRatings'],
-                'white_balance' => $exif_arr['WhiteBalance'],
-                'exposure_bias_value' => $exif_arr['ExposureBiasValue'],
-                'flash' => $exif_arr['Flash'],
-            ];
-
-            if($_FILES[$file_name]['tmp_name']){
-                $file=$this->upload_original('home_banner',$file_name);
+                $file=$this->upload(1,$width,$height,'banner',$file_name);
                 $file_flag=1;
             }else{
                 $file_flag=0;
@@ -603,44 +478,13 @@ class CommonAction extends Action {
                 $this->json->setErr(10003,'图片上传有误');
                 $this->json->Send();
             } else {
-                $img_info = read_exif_data($img);
-                $original_width = $img_info['COMPUTED']['Width'];
-                $original_height = $img_info['COMPUTED']['Height'];
-
-                $deal_width = (int)C('IMG_SAMPLE_THUMB_WIDTH');
-                $big_width = (int)C('IMG_SAMPLE_BIG_WIDTH');
-                $rate       = $original_width / $deal_width;
-                $deal_height= (int)($original_height / $rate);
-                $out_data['img_url'] = $img.'?imageView2/2/w/'.$big_width;
-                $out_data['thumb_img_url'] = $img.'?imageView2/2/w/'.$deal_width;
-                $out_data['thumb_img_width'] = $deal_width;
-                $out_data['thumb_img_height'] = $deal_height;
-
-                return $out_data;
+                return $img;
             }
         } else {
             if ($_FILES[$file_name]) {
-                $exif_arr = read_exif_data($_FILES[$file_name]['tmp_name']);
-                if (!$exif_arr || !array_key_exists('Model',$exif_arr)) {
-                    $this->json->setErr(10001,'请上传相机原图');
-                    $this->json->Send();
-                }
-
-                $out_data = [
-                    'model' => $exif_arr['Model'],
-                    'focal_length' => $exif_arr['FocalLength'],
-                    'exposure_mode' => $exif_arr['ExposureMode'],
-                    'aperture_f_number' => $exif_arr['COMPUTED']['ApertureFNumber'],
-                    'exposure_time' => $exif_arr['ExposureTime'],
-                    'iso_speed_ratings' => $exif_arr['ISOSpeedRatings'],
-                    'white_balance' => $exif_arr['WhiteBalance'],
-                    'exposure_bias_value' => $exif_arr['ExposureBiasValue'],
-                    'flash' => $exif_arr['Flash'],
-                ];
-
                 if ($_FILES[$file_name]['tmp_name']) {
                     $file_flag = 1;
-                    $file = $this->upload_original('home_banner', $file_name);
+                    $file = $this->upload(1, $width, $height, 'banner', $file_name);
                 } else {
                     $file_flag = 0;
                 }
@@ -656,20 +500,7 @@ class CommonAction extends Action {
                     $this->json->setErr(10005, '图片上传失败');
                     $this->json->Send();
                 } else {
-                    $img_info = read_exif_data($img);
-                    $original_width = $img_info['COMPUTED']['Width'];
-                    $original_height = $img_info['COMPUTED']['Height'];
-
-                    $deal_width = (int)C('IMG_SAMPLE_THUMB_WIDTH');
-                    $big_width = (int)C('IMG_SAMPLE_BIG_WIDTH');
-                    $rate       = $original_width / $deal_width;
-                    $deal_height= (int)($original_height / $rate);
-                    $out_data['img_url'] = $img.'?imageView2/2/w/'.$big_width;
-                    $out_data['thumb_img_url'] = $img.'?imageView2/2/w/'.$deal_width;
-                    $out_data['thumb_img_width'] = $deal_width;
-                    $out_data['thumb_img_height'] = $deal_height;
-
-                    return $out_data;
+                    return $img;
                 }
             } else {
                 return false;
@@ -684,7 +515,6 @@ class CommonAction extends Action {
         if ($first_char != '/') {
             $c_path_info = '/'.$c_path_info;
         }
-//        exit($c_path_info);
 
         if(!$c_path_info) $c_path_info = '/';
         if($c_path_info=='/Index/index' || $c_path_info== '/Index' || $c_path_info== '/Index/') $c_path_info = '/';

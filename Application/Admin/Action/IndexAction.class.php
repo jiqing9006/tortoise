@@ -1,7 +1,6 @@
 <?php
 namespace Admin\Action;
 
-
 class IndexAction extends CommonAction
 {
     public function index()

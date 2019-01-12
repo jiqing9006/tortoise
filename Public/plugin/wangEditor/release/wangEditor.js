@@ -4342,7 +4342,7 @@ function Editor(toolbarSelector, textSelector) {
 
     // 自定义配置 by jiqing
     this.customConfig = {
-        uploadImgServer:'/admin.php/Upload/wang_editor', // 上传服务器地址
+        uploadImgServer:'/admin.php/Common/wang_editor', // 上传服务器地址
         uploadImgMaxSize:3 * 1024 * 1024, // 3M
         uploadImgMaxLength:1, // 最多上传1张
         zIndex:10,

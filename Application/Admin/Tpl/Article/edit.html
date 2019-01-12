@@ -1,0 +1,231 @@
+<include file="Public:header" />
+<include file="Public:nav" />
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <ol class="breadcrumb">
+                    <li>
+                        <i class="fa fa-dashboard"></i>  <a href="__URL__/index">{$model_name}管理</a>
+                    </li>
+                    <li class="active">
+                        <i class="fa fa-bar-chart-o"></i> 添加{$model_name}
+                    </li>
+
+                </ol>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        添加编辑{$model_name}
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="table-responsive col-lg-10">
+                            <form class="form-horizontal addForm" method="post" action="editsave" name="form1" id="edit_form" enctype="multipart/form-data">
+                                <input type="hidden" id="content" name="content" value="{$result['content']}">
+
+                                <input type="hidden" id="id" name="id" value="{$result['id']}">
+                                <input type="hidden" name="page" id="page" value="{$page}" />
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label  col-lg-3  text-right"><span class="control-label required-mark">*</span>标题:</label>
+                                    <input class="form-control-erbi col-lg-6" type="text" name="title" id="title" value="{$result['title']}" />
+                                </div>
+
+
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label col-lg-3 text-right"><span class="control-label required-mark">*</span>标题图:</label>
+                                    <span class="input-group file-caption-main col-lg-5" style="float: left;">
+                                        <div class="form-control file-caption  kv-fileinput-caption" style="overflow: hidden;line-height: 23px;">
+                                            尺寸必须是<span class="size">210*210</span>px
+                                        </div>
+                                        <input style="display: none;" class="file-real" id="title_img" name="title_img" type="file" multiple="" />
+
+                                        <div class="input-group-btn file-btn">
+                                            <div class="btn btn-primary btn-file" id="for_title_img">
+                                                <i class="glyphicon glyphicon-folder-open"></i>&nbsp;
+                                                <span class="hidden-xs">上传图片</span>
+                                            </div>
+                                        </div>
+                                    </span>
+                                    <span class="col-lg-4 text-left erbi-form-right">
+
+                                        <if condition="$result['title_img']">
+                                            <a href="<?php echo $result['title_img'];?>" target="_blank">点击查看</a>
+                                        </if>
+
+                                    </span>
+                                </div>
+
+                                
+                                <div class="form-group col-lg-12 cm-ml-10-minus" id="content_parent">
+                                    <label class="control-label  col-lg-3  text-right cm-ml-5"><span class="control-label required-mark">*</span>内容：</label>
+                                    <span class="col-lg-8 cm-ml-20-minus" id="content_editor">
+                                    </span>
+                                </div>
+
+                                
+                                <div class="form-group col-lg-12">
+                                    <label class="control-label col-lg-3 text-right">是否显示:</label>
+                                    <div style="margin-top:6px">
+                                        <input type="radio" name="is_show"  value="1"  <if condition="($result['is_show'] eq '1')   OR (empty($result['is_show']))">checked</if> /><label>是</label>&nbsp;&nbsp;
+                                        <input type="radio" name="is_show"  value="0"  <if condition="($result['is_show'] eq '0')">checked</if> /><label>否</label>&nbsp;&nbsp;
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="col-lg-2 col-lg-offset-3">
+                                        <button type="button" class="btn btn-primary col-lg-8" id="edit_btn">提交</button>
+                                    </div>
+
+                                    <div class="col-lg-2">
+                                        <button type="button" class="btn btn-danger col-lg-8" id="cancel_btn">取消</button>
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.table-responsive -->
+                    </div>
+                    <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<include file="Public:bottomJs" />
+
+<script type="text/javascript" src="/admin/js/common.js"></script>
+<script>
+    $(function () {
+        // 定义全局锁
+        var lock_flag = false;
+
+        var page = $('#page').val();
+
+        var E = window.wangEditor;
+        var content_editor = new E('#content_editor');
+        content_editor.create();
+        var content_val = $("#content").val();
+        // 设置内容
+        content_editor.txt.html(content_val);
+
+        
+        $("#cancel_btn").on('click',function () {
+            window.location.href = 'index?page=' + page;
+        });
+
+        $("#edit_form").ajaxForm({
+            dataType: "json",
+            success : function(obj){
+                if(obj.errno == 0){
+                    layer.msg(obj.errdesc);
+                    setTimeout(function() {
+                        window.location.href='index?page=' + page;
+                    },2000);
+                }else{
+                    // 解锁
+                    lock_flag = false;
+                    layer.msg(obj.errdesc);
+                }
+                return false;
+            }
+        });
+
+        $("#edit_btn").on("click", function(){
+            // 获取并判断各个值是否填写并正确
+            // 获取内容
+            var content = content_editor.txt.html();
+            // 设置新内容
+            $('#content').val(content);
+
+            if(!dealText('#title',msg = '请填写标题')) {
+                return;
+            }
+
+            var id = $("#id").val();
+            if (!id) { // 添加
+                if(!dealImg('#title_img',msg = '请选择图片')) {
+                    return;
+                }
+            }
+
+            if(!dealEditor('#content','内容不能为空')) {
+                return;
+            }
+
+            // 上锁
+            if (!lock_flag) {
+                lock_flag = true;
+                $("#edit_form").submit();
+            }
+            return false;
+        });
+
+
+        function dealText(target,msg = '请填写内容') {
+            var first_char = target.substr(0,1);
+            if (first_char != '#') {
+                target = "#"+target;
+            }
+
+            var v = $(target).val();
+            if (!v) {
+                scrollTo(target);
+                layer.tips(msg,target);
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function dealImg(target,msg = '请上传图片') {
+            var first_char = target.substr(0,1);
+            var mark = '';
+            if (first_char != '#') {
+                target = "#"+target;
+                mark = "#for_"+target;
+            } else {
+                mark = "#for_"+target.substring(1);
+            }
+            var i = $(target).val();
+            if (!i) {
+                scrollTo(mark);
+                layer.tips(msg,mark);
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function dealEditor(target,msg = '请填写内容') {
+            var first_char = target.substr(0,1);
+            if (first_char != '#') {
+                target = "#"+target;
+            }
+
+            var v = $(target).val();
+            if (v == '<p><br></p>') {
+                scrollTo(target);
+                layer.tips(msg,target+"_editor");
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function scrollTo(target) {
+            $('html, body').animate({
+                scrollTop: $(target).offset().top -500
+            }, 100);
+
+        }
+    })
+</script>
+<include file="Public:footer" />
